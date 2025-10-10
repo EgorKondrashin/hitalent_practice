@@ -17,8 +17,3 @@ list:
 
 bandit:
     bandit -r app/
-
-safety:
-    safety scan
-
-secure: bandit safety
