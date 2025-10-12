@@ -6,10 +6,12 @@ class DoubleLinkedList:
         def __init__(
             self,
             value: int,
+            _prev: 'DoubleLinkedList.Node | None' = None,
+            _next: 'DoubleLinkedList.Node | None' = None,
         ) -> None:
             self.value = value
-            self.prev = None
-            self.next = None
+            self.prev = _prev
+            self.next = _next
 
         def __repr__(
             self,
@@ -30,12 +32,11 @@ class DoubleLinkedList:
         self,
         value: int,
     ) -> None:
-        new_node = self.Node(value)
+        new_node = self.Node(value, _prev=self.tail)
 
         if self.head is None:
             self.head = self.tail = new_node  # type: ignore[assignment]
         else:
-            new_node.prev = self.tail
             self.tail.next = new_node
             self.tail = new_node
 
@@ -45,12 +46,11 @@ class DoubleLinkedList:
         self,
         value: int,
     ) -> None:
-        new_node = self.Node(value)
+        new_node = self.Node(value, _next=self.head)
 
         if self.head is None:
             self.head = self.tail = new_node  # type: ignore[assignment]
         else:
-            new_node.next = self.head
             self.head.prev = new_node
             self.head = new_node
 
@@ -71,11 +71,13 @@ class DoubleLinkedList:
             self.append(value)
         else:
             current = self._get_node_at_index(index)
-            new_node = self.Node(value)
-            new_node.prev = current.prev
-            new_node.next = current  # type: ignore[assignment]
-            current.prev.next = new_node  # type: ignore[attr-defined]
-            current.prev = new_node  # type: ignore[assignment]
+            new_node = self.Node(
+                value,
+                _prev=current.prev,
+                _next=current,
+            )
+            current.prev.next = new_node  # type: ignore[union-attr]
+            current.prev = new_node
 
             self._size += 1
 
@@ -85,25 +87,25 @@ class DoubleLinkedList:
     ) -> bool:
         current = self.head
 
-        while current:
-            if current.value == value:
+        for _ in range(self._size):
+            if current.value == value:  # type: ignore[attr-defined, union-attr]
                 if current == self.head:
-                    self.head = current.next
+                    self.head = current.next  # type: ignore[attr-defined, union-attr]
                     if self.head:
                         self.head.prev = None
                     else:
                         self.tail = None
                 elif current == self.tail:
-                    self.tail = current.prev
-                    self.tail.next = None
+                    self.tail = current.prev  # type: ignore[attr-defined]
+                    self.tail.next = None  # type: ignore[attr-defined]
                 else:
-                    current.prev.next = current.next
-                    current.next.prev = current.prev
+                    current.prev.next = current.next  # type: ignore[attr-defined]
+                    current.next.prev = current.prev  # type: ignore[attr-defined]
 
                 self._size -= 1
                 return True
 
-            current = current.next
+            current = current.next  # type: ignore[attr-defined, union-attr]
 
         return False
 
@@ -112,13 +114,11 @@ class DoubleLinkedList:
         value: int,
     ) -> int:
         current = self.head
-        index = 0
 
-        while current:
-            if current.value == value:
+        for index in range(self._size):
+            if current.value == value:  # type: ignore[attr-defined, union-attr]
                 return index
-            current = current.next
-            index += 1
+            current = current.next  # type: ignore[attr-defined, union-attr]
 
         return -1
 
