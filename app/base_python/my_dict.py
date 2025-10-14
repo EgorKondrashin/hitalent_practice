@@ -1,12 +1,15 @@
 from collections.abc import Generator
 from typing import Any
 
+DEFAULT_CAPACITY = 8
+DEFAULT_LOAD_FACTOR = 0.75
+
 
 class MyDict:
     def __init__(
         self,
-        initial_capacity: int = 8,
-        load_factor: float = 0.75,
+        initial_capacity: int = DEFAULT_CAPACITY,
+        load_factor: float = DEFAULT_LOAD_FACTOR,
     ) -> None:
         self._capacity = initial_capacity
         self._load_factor = load_factor
@@ -104,26 +107,10 @@ class MyDict:
 
     def __iter__(
         self,
-    ) -> 'MyDict':
-        self._iter_index = 0
-        self._iter_bucket_index = 0
-        return self
-
-    def __next__(
-        self,
-    ) -> int | str:
-        while self._iter_index < self._capacity:
-            bucket = self._buckets[self._iter_index]
-
-            if self._iter_bucket_index < len(bucket):
-                key, value = bucket[self._iter_bucket_index]
-                self._iter_bucket_index += 1
-                return key
-
-            self._iter_index += 1
-            self._iter_bucket_index = 0
-
-        raise StopIteration
+    ) -> Generator[int | str]:
+        for bucket in self._buckets:
+            for key, _ in bucket:
+                yield key
 
     def get(
         self,
