@@ -1,19 +1,82 @@
-test:
-    pytest tests/ -v
+dotenv-filename := ".env"
 
+# Define source directory for the project
+
+SOURCE_DIR := "app"
+TESTS_DIR := "tests"
+
+# Help command to show all available commands
+[group('default')]
+help:
+    @just --list
+
+# Run pre-commit for all files
+[group('formatters')]
 precommit:
     pre-commit run --all-files
 
+# Combined format command (includes linting and security)
+[group('formatters')]
+format: ruff mypy security
+
+# Run Ruff linter with auto-fix
+[group('formatters')]
 ruff:
-    pre-commit run ruff --all-files
+    ruff check --fix .
 
+# Type checking with mypy
+[group('formatters')]
 mypy:
-    pre-commit run mypy --all-files
+    mypy .
 
-lint: ruff mypy
+# Group of security checking commands
+[group('security')]
+security: bandit
 
-list:
-    just --list
-
+# Run bandit security checker
+[group('security')]
 bandit:
-    bandit -r app/
+    bandit -r ./{{ SOURCE_DIR }}
+
+# Run project tests
+[group('run-time')]
+test:
+    pytest -vs ./{{ TESTS_DIR }}
+
+# Build local environment
+[group('run-time')]
+build-local:
+    docker compose \
+      -f .docker/docker-compose.yaml \
+      --env-file .docker/docker-compose-variables.env \
+      up \
+      -d \
+      --remove-orphans \
+      --build
+
+# Stop run local environment
+[group('run-time')]
+down-local:
+    docker compose \
+      -f .docker/docker-compose.yaml \
+      --env-file .docker/docker-compose-variables.env \
+      down
+
+# Build test environment
+[group('run-time')]
+build-test:
+    docker compose \
+      -f .docker/test/docker-compose.yaml \
+      --env-file .docker/test/docker-compose-variables.env \
+      up \
+      --remove-orphans \
+      --build \
+      --abort-on-container-exit
+
+# Stop run test environment
+[group('run-time')]
+down-test:
+    docker compose \
+      -f .docker/test/docker-compose.yaml \
+      --env-file .docker/test/docker-compose-variables.env \
+      down

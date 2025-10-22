@@ -1,9 +1,12 @@
 [project]
-name = "tasks-yougile1"
+name = "hitalent-practice"
 version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.13"
-dependencies = []
+dependencies = [
+    "asyncpg>=0.30.0",
+    "sqlalchemy>=2.0.44",
+]
 
 [dependency-groups]
 dev = [
@@ -13,6 +16,9 @@ dev = [
 lint = [
     "mypy>=1.15.0",
     "ruff>=0.11.6",
+]
+migration = [
+    "alembic>=1.17.0",
 ]
 security = [
     "bandit>=1.8.3",
@@ -53,7 +59,7 @@ target-version = "py313"
 line-length = 120
 exclude = [
   ".venv",
-  "alembic/versions/"
+  "migrations/versions/"
 ]
 lint.ignore = [
   "ANN401", # Dynamically typed expressions (typing.Any) are disallowed
@@ -149,4 +155,3 @@ exclude_lines = [
     "raise NotImplementedError",
     "return NotImplemented"
 ]
-
